@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Grabador de Audio</title>
+<style>
+body{
+font-family:Arial,sans-serif;
+text-align:center;
+padding:20px;
+}
+button{
+padding:12px 20px;
+margin:10px;
+font-size:16px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+#record{background:#e53935;color:white;}
+#stop{background:#1e88e5;color:white;}
+</style>
+</head>
+<body>
+
+<h2>🎤 Record Your Voice</h2>
+
+<button id="record">Start Recording</button>
+<button id="stop" disabled>Stop</button>
+
+<br><br>
+
+<audio id="audio" controls></audio>
+
+<script>
+let mediaRecorder;
+let chunks=[];
+
+const recordBtn=document.getElementById("record");
+const stopBtn=document.getElementById("stop");
+const audio=document.getElementById("audio");
+
+recordBtn.onclick=async()=>{
+
+const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+
+mediaRecorder=new MediaRecorder(stream);
+
+mediaRecorder.start();
+
+recordBtn.disabled=true;
+stopBtn.disabled=false;
+
+chunks=[];
+
+mediaRecorder.ondataavailable=e=>{
+chunks.push(e.data);
+};
+
+mediaRecorder.onstop=()=>{
+
+const blob=new Blob(chunks,{type:'audio/webm'});
+const url=URL.createObjectURL(blob);
+
+audio.src=url;
+
+const a=document.createElement("a");
+a.href=url;
+a.download="student_recording.webm";
+a.click();
+
+recordBtn.disabled=false;
+stopBtn.disabled=true;
+
+};
+};
+
+stopBtn.onclick=()=>{
+mediaRecorder.stop();
+};
+</script>
+
+</body>
+</html>
